@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mnist-inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mnist-inference
+  template:
+    metadata:
+      labels:
+        app: mnist-inference
+    spec:
+      containers:
+      - name: inference
+        image: REGION-docker.pkg.dev/PROJECT_ID/REPO_NAME/mnist-inference:latest
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: model-storage
+          mountPath: /mnt/model
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: model-pvc

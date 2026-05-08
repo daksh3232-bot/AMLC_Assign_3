@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mnist-train
+spec:
+  template:
+    spec:
+      containers:
+      - name: train
+        image: REGION-docker.pkg.dev/PROJECT_ID/REPO_NAME/mnist-train:latest
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: model-storage
+          mountPath: /mnt/model
+      restartPolicy: Never
+      volumes:
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: model-pvc
+  backoffLimit: 4

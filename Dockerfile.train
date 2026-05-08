@@ -1,0 +1,14 @@
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+
+WORKDIR /app
+
+# No need to install torch/torchvision as they are in the base image
+# But we might need other small utilities
+RUN pip install --no-cache-dir torchvision
+
+COPY train.py .
+
+# Create directory for model storage
+RUN mkdir -p /mnt/model
+
+CMD ["python", "train.py"]

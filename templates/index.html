@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MNIST Predictor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 { color: #333; }
+        #canvas {
+            border: 2px solid #333;
+            background-color: black;
+            cursor: crosshair;
+            margin-bottom: 1rem;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+        .btn-predict { background-color: #007bff; color: white; }
+        .btn-predict:hover { background-color: #0056b3; }
+        .btn-clear { background-color: #6c757d; color: white; }
+        .btn-clear:hover { background-color: #5a6268; }
+        #result {
+            margin-top: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MNIST Digit Predictor</h1>
+        <p>Draw a digit (0-9) in the box below:</p>
+        <canvas id="canvas" width="280" height="280"></canvas>
+        <div class="buttons">
+            <button class="btn-clear" onclick="clearCanvas()">Clear</button>
+            <button class="btn-predict" onclick="predict()">Predict</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 15;
+        ctx.lineCap = "round";
+
+        canvas.addEventListener('mousedown', () => drawing = true);
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.beginPath();
+        });
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(event) {
+            if (!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(event.clientX - rect.left, event.clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(event.clientX - rect.left, event.clientY - rect.top);
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('result').innerText = "";
+        }
+
+        function predict() {
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append('file', blob, 'digit.png');
+
+                fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.prediction !== undefined) {
+                        document.getElementById('result').innerText = `Prediction: ${data.prediction}`;
+                    } else {
+                        document.getElementById('result').innerText = `Error: ${data.error}`;
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('result').innerText = "Prediction Failed";
+                });
+            });
+        }
+        
+        // Initialize canvas
+        clearCanvas();
+    </script>
+</body>
+</html>

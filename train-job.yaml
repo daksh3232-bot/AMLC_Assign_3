@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
       - name: train
-        image: REGION-docker.pkg.dev/PROJECT_ID/REPO_NAME/mnist-train:latest
+        image: asia-east1-docker.pkg.dev/coms6998-amlc-da3232/ml-images/mnist-train:latest
         resources:
           limits:
             nvidia.com/gpu: 1

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: inference
-        image: REGION-docker.pkg.dev/PROJECT_ID/REPO_NAME/mnist-inference:latest
+        image: asia-east1-docker.pkg.dev/coms6998-amlc-da3232/ml-images/mnist-inference:latest
         ports:
         - containerPort: 5000
         volumeMounts:
